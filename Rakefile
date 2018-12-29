@@ -5,12 +5,17 @@ require 'bundler/setup'
 require 'rake'
 require 'rspec/core'
 require 'rspec/core/rake_task'
-Rake.load_rakefile 'active_record/railties/databases.rake'
 
+load 'tasks/otr-activerecord.rake'
 RSpec::Core::RakeTask.new(:spec)
 
+namespace :db do
+  task :environment do
+    require File.expand_path('config/env', __dir__)
+  end
+end
+
 task :environment do
-  ENV['RACK_ENV'] ||= 'development'
   require File.expand_path('config/env', __dir__)
 end
 

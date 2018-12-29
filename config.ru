@@ -4,7 +4,7 @@ require 'rack/throttle'
 
 require File.expand_path('config/env', __dir__)
 
-use OTR::ActiveRecord::ConnectionManagement
 use Rack::Throttle::Second, max: 200
+use OTR::ActiveRecord::ConnectionManagement
 
-run Rack::Cascade.new([Survey::API])
+run Rack::Cascade.new([Survey::App])

@@ -5,7 +5,7 @@ require 'pathname'
 
 # Load environment settings
 Config = OpenStruct.new
-env = ENV['RACK_ENV'] ||= :development
+env = ENV['RACK_ENV'] || :development
 Config.env = env.to_sym
 Config.root = Pathname.new(File.expand_path('..', __dir__))
 

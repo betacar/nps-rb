@@ -1,12 +1,12 @@
 development:
   adapter: postgresql
   encoding: unicode
-  database: <%= ENV['DB_NAME'] %>
+  database: <%= ENV.fetch('DB_NAME') { 'survey' } %>
   pool: 5
-  username: <%= ENV['DB_USER'] %>
-  password: <%= ENV['DB_PASSWORD'] %>
-  host: <%= ENV['DB_HOST'] %>
-  port: <%= ENV['DB_PORT'] %>
+  username: <%= ENV.fetch('DB_USER') { 'vader' } %>
+  password: <%= ENV.fetch('DB_PASSWORD') { 'this_is_a_secure_password' } %>
+  host: <%= ENV.fetch('DB_HOST') { 'localhost' } %>
+  port: <%= ENV.fetch('DB_PORT') { '5432' } %>
 
 test:
   adapter: postgresql
