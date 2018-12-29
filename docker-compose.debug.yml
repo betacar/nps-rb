@@ -1,0 +1,10 @@
+version: '2.1'
+
+services:
+  nps-grape:
+    image: nps-grape
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+        - 9292:9292

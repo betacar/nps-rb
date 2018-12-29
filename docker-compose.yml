@@ -1,0 +1,52 @@
+version: '2.1'
+
+services:
+  app:
+    image: app
+    container_name: app
+    restart: always
+    environment:
+      - DB_NAME=survey
+      - DB_USER=vader
+      - DB_PASSWORD=this_is_a_secure_password
+      - DB_HOST=psql
+      - DB_PORT=5432
+    ports:
+      - 9292:9292
+    depends_on:
+      psql:
+        condition: service_healthy
+      migrate:
+        condition: service_started
+    volumes:
+      - .:/app
+
+  migrate:
+    build: .
+    image: app
+    entrypoint: ["bin/setup"]
+    environment:
+      - DB_NAME=survey
+      - DB_USER=vader
+      - DB_PASSWORD=this_is_a_secure_password
+      - DB_HOST=psql
+      - DB_PORT=5432
+    depends_on:
+      psql:
+        condition: service_healthy
+
+  psql:
+    image: postgres:latest
+    volumes:
+      - ./db/.data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=vader
+      - POSTGRES_PASSWORD=this_is_a_secure_password
+      - POSTGRES_DB=survey
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vader -d survey"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
