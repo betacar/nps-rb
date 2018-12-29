@@ -4,8 +4,6 @@ require 'time'
 
 module Survey
   class ScoreV1 < Grape::API
-    attr_reader :scores
-
     version 'v1', using: :path
     format :json
 
@@ -18,20 +16,19 @@ module Survey
         optional :source, type: String, desc: 'Source URL.'
       end
       post do
-        @scores = [] unless @scores && @scores.size > 1
-        @scores.push(
-          rate: params[:rate],
-          comment: params[:comment],
-          user_id: params[:user_id],
-          source: params[:source],
-          created_at: Time.now.utc.iso8601
-        )
-        @scores.last
+        score = Score.new
+        score.rate = params[:rate]
+        score.comment = params[:comment]
+        score.user_id = params[:user_id]
+        score.source = params[:source]
+        score.created_at = params[:created_at] || Time.now.utc.iso8601
+        score.save
+        score
       end
 
       desc 'Fetches all scores'
       get do
-        @scores || []
+        Score.all
       end
     end
   end

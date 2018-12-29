@@ -9,9 +9,6 @@ development:
   port: <%= ENV.fetch('DB_PORT') { '5432' } %>
 
 test:
-  adapter: postgresql
-  encoding: unicode
-  database: tests
-  pool: 5
+  <<: &development
   username: <%= ENV['DB_TEST_USER'] %>
   password: <%= ENV['DB_TEST_PASSWORD'] %>
