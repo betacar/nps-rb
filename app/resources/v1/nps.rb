@@ -7,6 +7,14 @@ module Survey
     version 'v1', using: :path
     format :json
 
+    helpers do
+      def percentage(num, all)
+        return 0 unless all.positive?
+
+        (num.size / all) * 100
+      end
+    end
+
     resource :nps do
       desc 'Calculates and returns the NPS score'
       params do
@@ -15,18 +23,21 @@ module Survey
       end
       get do
         scores = Score.where(created_at: params[:from]..params[:to])
-        detractors = (scores.select { |item| item.rate >= 0 && item.rate <= 6 }).size * 100 / scores.size
-        passives = (scores.select { |item| item.rate >= 7 && item.rate <= 8 }).size * 100 / scores.size
-        promoters = (scores.select { |item| item.rate >= 9 }).size * 100 / scores.size
+        all_scores = scores.size
+        detractors = scores.select { |item| item.rate >= 0 && item.rate <= 6 }
+        passives = scores.select { |item| item.rate >= 7 && item.rate <= 8 }
+        promoters = scores.select { |item| item.rate >= 9 }
+        detractor_perc = percentage(detractors, all_scores)
+        promoter_perc = percentage(promoters, all_scores)
 
         {
           from: params[:from],
           to: params[:to],
           result: {
-            detractors: detractors,
-            promoters: promoters,
-            passives: passives,
-            total: (promoters - detractors)
+            detractors: detractor_perc,
+            promoters: promoter_perc,
+            passives: percentage(passives, all_scores),
+            total: (promoter_perc - detractor_perc)
           }
         }
       end
