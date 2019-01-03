@@ -16,13 +16,7 @@ module Survey
         optional :source, type: String, desc: 'Source URL.'
       end
       post do
-        score = Score.new
-        score.rate = params[:rate]
-        score.comment = params[:comment]
-        score.user_id = params[:user_id]
-        score.source = params[:source]
-        score.created_at = params[:created_at] || Time.now.utc.iso8601
-        score.save
+        score = Score.create(params)
         score
       end
 
