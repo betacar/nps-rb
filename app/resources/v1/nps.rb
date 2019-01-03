@@ -9,36 +9,33 @@ module Survey
 
     helpers do
       def percentage(num, all)
-        return 0 unless all.positive?
-
-        (num.size / all) * 100
+        num.size * 100 / all
       end
     end
 
     resource :nps do
       desc 'Calculates and returns the NPS score'
       params do
-        requires :from, type: String, desc: 'Start date.'
-        optional :to, type: String, desc: 'End date.', default: Time.now.utc.iso8601
+        requires :from, type: DateTime, desc: 'Start date.'
+        optional :to, type: DateTime, desc: 'End date.', default: Time.now.end_of_day.utc.iso8601
       end
       get do
-        scores = Score.where(created_at: params[:from]..params[:to])
-        all_scores = scores.size
+        scores = Score.where(['created_at >= ? AND created_at <= ?', params[:from], params[:to]])
+        all_scores = scores.to_a.size
+
+        unless all_scores.positive?
+          return {
+            result: 0
+          }
+        end
+
         detractors = scores.select { |item| item.rate >= 0 && item.rate <= 6 }
-        passives = scores.select { |item| item.rate >= 7 && item.rate <= 8 }
-        promoters = scores.select { |item| item.rate >= 9 }
         detractor_perc = percentage(detractors, all_scores)
+        promoters = scores.select { |item| item.rate >= 9 }
         promoter_perc = percentage(promoters, all_scores)
 
         {
-          from: params[:from],
-          to: params[:to],
-          result: {
-            detractors: detractor_perc,
-            promoters: promoter_perc,
-            passives: percentage(passives, all_scores),
-            total: (promoter_perc - detractor_perc)
-          }
+          result: (promoter_perc - detractor_perc)
         }
       end
     end
